@@ -59,7 +59,6 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
     <div class="row">
         <div class="col-12 m-auto">
             <?=$pagination?>
-        </div>
-       
+        </div>  
     </div>
 </div>

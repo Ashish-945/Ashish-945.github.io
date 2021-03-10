@@ -1,24 +1,17 @@
-<!--<!DOCTYPE html>
-<html>
-    <head>
-        <title>Add tems</title>
-        <link rel='stylesheet' href="<?=base_url()?>assets/css/bootstrap.min.css"  >
-        <link rel='stylesheet' href="<?=base_url()?>assets/css/style.css"  >
-
-    </head>
-    <body>
--->
-
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+?>
 <!DOCTYPE html>
 <html>
     <head>
-        <title>home</title>
+        <meta charset="UTF-8">
+        <meta name="viewpoint" content="width=device-width, initial-scale=1.0">
+        <title>Docs</title>
         <link rel='stylesheet' href="<?=base_url()?>assets/css/bootstrap.min.css"  >
-        <script src="<?=base_url()?>assets/js/bootstrap.bundle.min.js" ></script>
-
+        <link rel='stylesheet' href="<?=base_url()?>assets/css/style.css"  >
+        <link rel="stylesheet" href="<?=base_url()?>assets/css/open-iconic-bootstrap.css" >
     </head>
     <body>
-
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <a class="navbar-brand" href="<?=site_url()?>">OL Shopping</a>
@@ -57,8 +50,15 @@
           <?=$user['first_name']?>
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
+        <?php if($user['level'] >= 1):?>
+          <a class="dropdown-item" href="<?=base_url('manager/items')?>">Products</a>
+          <a class="dropdown-item" href="<?=base_url('manager/categories')?>">Categories</a>
+        <?php endif;?>
+
+        <?php if($user['level'] == 2):?>
+          <a class="dropdown-item" href="<?=base_url('manager/users')?>">Users</a>
+        <?php endif;?>
+
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="<?=base_url('home/logout')?>">Logout</a>
         </div>
@@ -73,4 +73,14 @@
     </form>
   </div>
 </nav>
+
+<?php if(isset($alert) && is_array($alert)):?>
+  <div class="container">
+    <div class="row">
+      <div class="col-6">
+        <div class="alert alert-<?=$alert['type']?>"><?=$alert['message']?></div>
+      </div>
+    </div>
+  </div>
+<?php endif;?>
   

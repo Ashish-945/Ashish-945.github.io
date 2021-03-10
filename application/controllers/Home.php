@@ -30,7 +30,7 @@ class Home extends CI_Controller {
         $viewData['items'] = $this->db->where($where)->limit($limit, $start)->get('items')->result();
         $this->pagination->initialize([
             'base_url'   => base_url() . ($category_id ? 'category/'.$category_id : '') . ($search ? '?search='.$search : '') ,
-            'total_rows' => $this->db->where($where)->count_all_results('items'),
+            'total_rows' => $this->db->where($where)->count_all_results('items')
 
         ]);
         
@@ -40,11 +40,18 @@ class Home extends CI_Controller {
     	}
 
     public function logout(){
-        
+        $this->session->unset_userdata([
+            'logged' , 'user_id' , 'email' , 'first_name' , 'last_name' 
+        ]);
+        redirect(base_url());
     }
 
     
     public function login(){
+        if(isset($this->userData['logged'])){
+            redirect(base_url());
+
+        }
         $viewData = [];
         $this->load->helper('form');
         $this->load->library('form_validation');
@@ -53,11 +60,41 @@ class Home extends CI_Controller {
             ->set_rules('email', 'Email', 'required|trim|valid_email')
             ->set_rules('password', 'Password', 'required|trim');
 
+        if ($this->form_validation->run()){
+            $user = [
+                'email' => $this->input->post('email'),
+                'password' => md5(sha1($this->input->post('password')))
+
+            ];
+            $userData = $this->db
+                             ->select([ 'id' , 'email' , 'first_name' , 'last_name' , 'level' ])
+                             ->where($user)->get('users')->row();
+            if(is_object($userData)){
+                $newdata = [
+                    'logged'    => true,
+                    'user_id'   => $userData->id,
+                    'email'     => $userData->email,
+                    'level'     => $userData->level,
+                    'first_name'=> $userData->first_name,
+                    'last_name' => $userData->last_name
+                ];
+                $this->session->set_userdata($newdata);
+                redirect(base_url());
+            }else{
+                $viewData['error'] = 'Login or password incorrect';
+            }
+        }
+
         $this->render('login',$viewData);
         }
 
 
     public function register(){
+        if(isset($this->userData['logged'])){
+            redirect(base_url());
+
+        }
+
         $viewData = [];
         $this->load->helper('form');
         $this->load->library('form_validation');
@@ -80,6 +117,7 @@ class Home extends CI_Controller {
             if($insert){
                 $newdata = [
                     'logged'  => true,
+                    'level'   => 0,
                     'user_id' => $this->db->insert_id(),
                     'email'   => $data['email'],
                     'first_name'=>$data['first_name'],
@@ -93,83 +131,6 @@ class Home extends CI_Controller {
 
         $this->render('register',$viewData);
 
-    }
-
-    public function add_category(){
-        $viewData = [];
-        $this->load->helper('form');
-        $this->load->library('form_validation');
-
-        $this->form_validation
-            ->set_rules('title', 'Title', 'required|min_length[5]|max_length[30]');
-
-        if ($this->form_validation->run())
-		{
-                $insertData = [
-                    'title'      => $this->input->post('title') 
-               ];
-                $this->db->insert('categories', $insertData);
-		}
-
-       
-        $this->render('add_category' , $viewData);
-    }
-
-    public function add_item(){
-        $viewData = [];
-        $this->load->helper('form');
-        $this->load->library('form_validation');
-
-        $this->form_validation
-            ->set_rules('title', 'Title', 'required|min_length[5]|max_length[30]')
-            ->set_rules('description', 'description', 'required')
-            ->set_rules('price', 'Price', 'required|numeric|greater_than[0]');
-
-
-        if ($this->form_validation->run())
-		{
-			$upload = $this->do_upload();
-            if(isset($upload['error'])){
-                $viewData['error'] = $upload['error'];
-
-            }else{
-                $insertData = [
-                    'title'      => $this->input->post('title'),
-                    'price'      => $this->input->post('price'),
-                    'description'=> $this->input->post('description'),
-                    'image'      => $upload['data']
-                ];
-                $this->db->insert('ci_items', $insertData);
-            }
-		}
-
-        $this->render('add_item',$viewData);
-
-    }
-    
-
-    private function do_upload()
-    {
-        $config = [
-            'upload_path'   => './uploads/',
-            'allowed_types' => 'gif|jpg|png',
-            'max_size'      =>  1024,
-            'encrypt_name'  =>  true
-        ];
-            
-
-            $this->load->library('upload', $config);
-
-            if ( ! $this->upload->do_upload('image'))
-            {
-                    return array('error' => $this->upload->display_errors($this->config->item('error_prefix'),$this->config->item('error_suffix')));
-
-            }
-            else
-            {
-                    return array('data' => $this->upload->data('file_name'));
-
-            }
     }
 
     private function render($page , $data = []){
