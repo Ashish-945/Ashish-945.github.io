@@ -24,13 +24,13 @@ class Manager extends CI_Controller {
         $viewData = [];
 
         $start = (int)$this->input->get('per_page');
-        $limit = $this->config->item('per_page');
+        $this->load->model('User_model' , 'model');
 
-        $viewData['items'] = $this->db->limit($limit, $start)->get('users')->result();
+        $viewData['items'] = $this->model->result('*', [] , $start);
 
         $this->pagination->initialize([
             'base_url'   => base_url('manager/users'),
-            'total_rows' => $this->db->count_all_results('users')
+            'total_rows' => $this->model->get_count([])
 
         ]);
         
@@ -41,9 +41,11 @@ class Manager extends CI_Controller {
     }
 
     public function delete_user($id){
-        $item = $this->db->select('email')->where('id' , $id)->get('users')->row();
+        $this->load->model('User_model' , 'model');
+
+        $item = $this->model->row($id);
         if(is_object($item)){
-            $this->db->delete('ci_users', array('id' => $id));
+            $this->model->delete($id);
             $this->add_alert('success' , 'User deleted successfully');
         }
         redirect(base_url('manager/users'));
@@ -52,7 +54,9 @@ class Manager extends CI_Controller {
     public function edit_user($id){
         $viewData = [];
 
-        $user = $this->db->where('id' , $id)->get('users')->row();
+        $this->load->model('User_model' , 'model');
+
+        $user = $this->model->get($id);
         if(!is_object($user)){
             show_404();
 
@@ -83,7 +87,7 @@ class Manager extends CI_Controller {
                 $data['password'] = md5(sha1($this->input->post('password')));
             }
 
-            $this->db->where('id' , $id)->update('ci_users', $data);
+            $this->model->update($data , $id);
             $this->add_alert('success' , 'User updated successfully');
             redirect(base_url('manager/users'));
 		}
@@ -97,13 +101,13 @@ class Manager extends CI_Controller {
         $viewData = [];
 
         $start = (int)$this->input->get('per_page');
-        $limit = $this->config->item('per_page');
+        $this->load->model('Item_model' , 'model');
 
-        $viewData['items'] = $this->db->limit($limit, $start)->get('items')->result();
+        $viewData['items'] = $this->model->result('*' , [] , $start);
 
         $this->pagination->initialize([
             'base_url'   => base_url('manager/items'),
-            'total_rows' => $this->db->count_all_results('items')
+            'total_rows' => $this->model->get_count()
 
         ]);
         
@@ -117,13 +121,12 @@ class Manager extends CI_Controller {
         $viewData = [];
 
         $start = (int)$this->input->get('per_page');
-        $limit = $this->config->item('per_page');
 
-        $viewData['items'] = $this->db->limit($limit, $start)->get('categories')->result();
+        $viewData['items'] = $this->Category_model->result('*', [] , $start);
 
         $this->pagination->initialize([
             'base_url'   => base_url('manager/categories'),
-            'total_rows' => $this->db->count_all_results('categories')
+            'total_rows' => $this->Category_model->get_count()
 
         ]);
         
@@ -143,12 +146,12 @@ class Manager extends CI_Controller {
 
         if ($this->form_validation->run())
 		{
-                $insertData = [
-                    'title'      => $this->input->post('title') 
-               ];
-                $this->db->insert('categories', $insertData);
-                $this->add_alert('success' , 'Category added successfully');
-                redirect(base_url('manager/categories'));
+            $insertData = [
+                'title'      => $this->input->post('title') 
+            ];
+            $this->Category_model->insert($insertData);
+            $this->add_alert('success' , 'Category added successfully');
+            redirect(base_url('manager/categories'));
 
 		}
 
@@ -157,9 +160,9 @@ class Manager extends CI_Controller {
     }
 
     public function delete_category($id){
-        $item = $this->db->select('title')->where('id' , $id)->get('categories')->row();
+        $item = $this->Category_model->row($id);
         if(is_object($item)){
-            $this->db->delete('ci_categories', array('id' => $id));
+            $this->Category_model->delete($id);
             $this->add_alert('success' , 'Category deleted successfully');
         }
         redirect(base_url('manager/categories'));
@@ -167,7 +170,7 @@ class Manager extends CI_Controller {
 
     public function edit_category($id){
         $viewData = [];
-        $item = $this->db->where('id' , $id)->get('categories')->row();
+        $item = $this->Category_model->row($id);
         if(!is_object($item)){
             show_404();
 
@@ -180,12 +183,12 @@ class Manager extends CI_Controller {
 
         if ($this->form_validation->run())
 		{
-                $data = [
-                    'title'      => $this->input->post('title') 
-               ];
-                $this->db->where('id', $id)->update('categories', $data);
-                $this->add_alert('success' , 'Category updated successfully');
-                redirect(base_url('manager/categories'));
+            $data = [
+                'title'      => $this->input->post('title') 
+            ];
+            $this->Category_model->update($data , $id);
+            $this->add_alert('success' , 'Category updated successfully');
+            redirect(base_url('manager/categories'));
 
 		}
 
@@ -193,10 +196,89 @@ class Manager extends CI_Controller {
         $this->render('manager/edit_category' , $viewData);
     }
 
-    public function edit_item($item_id){
+    public function pages(){
         $viewData = [];
 
-        $item = $this->db->where('id' , $item_id)->get('items')->row();
+        $start = (int)$this->input->get('per_page');
+        $this->load->model('Page_model' , 'model');
+
+        $viewData['items'] = $this->model->result('*' , [] , $start);
+
+        $this->pagination->initialize([
+            'base_url'   => base_url('manager/pages'),
+            'total_rows' => $this->model->get_count()
+
+        ]);
+        
+        $viewData['pagination'] =  $this->pagination->create_links();
+
+        $this->render('manager/pages',$viewData);
+
+    }
+
+
+    public function orders(){
+        $viewData = [];
+
+        $start = (int)$this->input->get('per_page');
+        $this->load->model('Order_model' , 'model');
+
+        $viewData['items'] = $this->model->result('*' , [] , $start);
+
+        $this->pagination->initialize([
+            'base_url'   => base_url('manager/orders'),
+            'total_rows' => $this->model->get_count()
+
+        ]);
+        
+        $viewData['pagination'] =  $this->pagination->create_links();
+
+        $this->render('manager/orders',$viewData);
+
+    }
+
+    public function order_detail($order_id){
+
+        $this->load->model('Order_model', 'model');
+        
+        $items = $this->model->get_items($order_id);
+
+        $data = [
+            'items' => $items
+        ];
+
+        $this->load->view('order_detail', $data);
+    }
+
+    public function delete_order($item_id){
+        $this->load->model('Order_model', 'model');
+
+        $item = $this->model->row($item_id);
+        if(is_object($item)){
+            $this->model->delete($item_id);
+            $this->add_alert('success' , 'Order deleted successfully');
+        }
+        redirect(base_url('manager/orders'));
+    }
+
+    public function edit_order($order_id){
+        $this->load->model('Order_model', 'model');
+
+        $item = $this->model->row($order_id);
+        $status = $this->input->post('status');
+
+        if($status && $item){
+            $this->model->update(['status'=>$status], $order_id);
+            $this->add_alert('success', 'Order status successfully updated ');
+        }
+        redirect(base_url('manager/orders'));
+    }
+
+
+    public function edit_item($item_id){
+        $viewData = [];
+        $this->load->model('Item_model', 'model');
+        $item = $this->model->row($item_id);
         if(!is_object($item)){
             show_404();
 
@@ -226,7 +308,7 @@ class Manager extends CI_Controller {
                 $updateData['image'] = $upload['data'];
             }
            
-            $this->db->where('id' , $item_id)->update('ci_items', $updateData);
+            $this->model->update($updateData , $item_id);
             $this->add_alert('success' , 'Item updated successfully');
             redirect(base_url('manager/items'));
 		}
@@ -237,22 +319,26 @@ class Manager extends CI_Controller {
     }
 
     public function delete_item($item_id){
-        $item = $this->db->select('title')->where('id' , $item_id)->get('items')->row();
+        $this->load->model('Item_model', 'model');
+        $item = $this->model->row($item_id);
         if(is_object($item)){
-            $this->db->delete('ci_items', array('id' => $item_id));
+            $this->model->delete($item_id);
             $this->add_alert('success' , 'Item deleted successfully');
         }
         redirect(base_url('manager/items'));
     }
 
     public function add_item(){
+
         $viewData = [];
+        $this->load->model('Item_model' , 'model');
+
         $this->load->helper('form');
         $this->load->library('form_validation');
 
         $this->form_validation
             ->set_rules('title', 'Title', 'required|min_length[5]|max_length[30]')
-            ->set_rules('description', 'description', 'required')
+            ->set_rules('description', 'Description', 'required')
             ->set_rules('price', 'Price', 'required|numeric|greater_than[0]');
 
 
@@ -269,13 +355,83 @@ class Manager extends CI_Controller {
                     'description'=> $this->input->post('description'),
                     'image'      => $upload['data']
                 ];
-                $this->db->insert('ci_items', $insertData);
+                $this->model->insert($insertData);
                 $this->add_alert('success' , 'Item added successfully');
                 redirect(base_url('manager/items'));
             }
 		}
 
         $this->render('manager/add_item',$viewData);
+
+    }
+
+
+    public function edit_page($item_id){
+        $viewData = [];
+        $this->load->model('Page_model', 'model');
+        $item = $this->model->row($item_id);
+        if(!is_object($item)){
+            show_404();
+
+        }
+        $this->load->helper('form');
+        $this->load->library('form_validation');
+
+        $this->form_validation
+            ->set_rules('title', 'Title', 'required|min_length[5]|max_length[30]')
+            ->set_rules('content', 'Content', 'required');
+
+        if ($this->form_validation->run())
+		{
+            $updateData = [
+                'title'      => $this->input->post('title'),
+                'content'      => $this->input->post('content'),
+            ];
+         
+            $this->model->update($updateData , $item_id);
+            $this->add_alert('success' , 'Page updated successfully');
+            redirect(base_url('manager/pages'));
+		}
+        $viewData['item'] = $item;
+
+        $this->render('manager/edit_page',$viewData);
+
+    }
+
+    public function delete_page($item_id){
+        $this->load->model('Page_model', 'model');
+        $item = $this->model->row($item_id);
+        if(is_object($item)){
+            $this->model->delete($item_id);
+            $this->add_alert('success' , 'Page deleted successfully');
+        }
+        redirect(base_url('manager/pages'));
+    }
+
+    public function add_page(){
+
+        $viewData = [];
+        $this->load->model('Page_model' , 'model');
+
+        $this->load->helper('form');
+        $this->load->library('form_validation');
+
+        $this->form_validation
+            ->set_rules('title', 'Title', 'required|min_length[5]|max_length[10]')
+            ->set_rules('content', 'Content', 'required');
+
+        if ($this->form_validation->run())
+		{
+            $insertData = [
+                'title'      => $this->input->post('title'),
+                'content'      => $this->input->post('content')
+            ];
+            $this->model->insert($insertData);
+            $this->add_alert('success' , 'Page added successfully');
+            redirect(base_url('manager/pages'));
+		}
+
+        $this->render('manager/add_page',$viewData);
 
     }
     
@@ -311,7 +467,7 @@ class Manager extends CI_Controller {
 
     private function render($page , $data = []){
         
-        $categories =$this->db->get('categories')->result();
+        $categories =$this->Category_model->result('*');
         $headerData = [
             'categories'  => $categories,
             'user'        => $this->userData,

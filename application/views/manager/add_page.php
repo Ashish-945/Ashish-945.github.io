@@ -10,25 +10,16 @@
         <div class="container">
             <div class="row">
                     <div class="col-12"></div>
-                    <h1>Add Items</h1>
-                    <?=isset($error) ? $error : ''?>
+                    <h1>Add Pages</h1>
                     <?=validation_errors()?>
-                    <?=form_open_multipart(base_url('manager/add_item')) ?>
+                    <?=form_open_multipart(base_url('manager/add_page')) ?>
                         <div class="mb-3">
                             <label for="title" class="form-label">Title</label>
                             <input type="text" class="form-control" id="title" name="title" value="<?=set_value('title')?>">
                         </div>
                         <div class="mb-3">
-                            <label for="price" class="form-label">Price</label>
-                            <input type="number" class="form-control" min="0" step="0.01" id="title" name="price" value="<?=set_value('price')?>">
-                        </div>
-                        <div class="mb-3">
-                        <label for="image" class="form-label">Image</label>
-                        <input type="file" class="form-control-file" name="image" id="image" >
-                        </div>
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" value="<?=set_value('description')?>"> </textarea>
+                            <label for="content">Content</label>
+                            <textarea class="form-control" id="content" name="content" value="<?=set_value('content')?>"> </textarea>
                         </div>
                         
                         <button type="submit" class="btn btn-success">Add new</button>
@@ -36,4 +27,7 @@
                     </div>
             </div>
         </div>
-        
+        <script src="//cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
+        <script>
+            CKEDITOR.replace('content');
+        </script>

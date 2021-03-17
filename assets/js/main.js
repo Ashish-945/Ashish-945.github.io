@@ -8,4 +8,12 @@ $(document).ready(function(){
             }
         })
     }
+
+    if($(".order-detail").length){
+        $(".order-detail").click(function(){
+            let url = window.location.protocol + "order-detail/" + $(this).data("id");
+            fetch(url).then(res => res.text())
+                .then(html =>$("#orderModal , modal-body").html(html));
+        });
+    }
 });

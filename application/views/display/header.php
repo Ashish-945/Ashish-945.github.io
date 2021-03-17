@@ -10,6 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <link rel='stylesheet' href="<?=base_url()?>assets/css/bootstrap.min.css"  >
         <link rel='stylesheet' href="<?=base_url()?>assets/css/style.css"  >
         <link rel="stylesheet" href="<?=base_url()?>assets/css/open-iconic-bootstrap.css" >
+        <link rel="stylesheet" href="<?=base_url()?>assets/css/bootstrap1.min.css">
     </head>
     <body>
 
@@ -25,10 +26,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <a class="nav-link" href="<?=site_url()?>">Home <span class="sr-only"></span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">About us</a>
+        <a class="nav-link" href="<?=base_url()?>page/1-about_us">About us</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Contact us</a>
+        <a class="nav-link" href="<?=base_url()?>page/3-contact_us">Contact us</a>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -50,9 +51,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
           <?=$user['first_name']?>
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="<?=base_url('cart')?>">Shopping Cart</a>
+          <a class="dropdown-item" href="<?=base_url('orders')?>">Orders</a>
+
         <?php if($user['level'] >= 1):?>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="<?=base_url('manager/orders')?>">Orders</a>
           <a class="dropdown-item" href="<?=base_url('manager/items')?>">Products</a>
           <a class="dropdown-item" href="<?=base_url('manager/categories')?>">Categories</a>
+          <a class="dropdown-item" href="<?=base_url('manager/pages')?>">Pages</a>
         <?php endif;?>
 
         <?php if($user['level'] == 2):?>
@@ -67,6 +74,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
       <a class="nav-link" href="<?=base_url('home/login')?>">Enter</a>
 
     <?php endif;?>
+
+    
+
     <form class="form-inline my-2 my-lg-0" actiion="" method="get">
       <input class="form-control mr-sm-2" name="search" type="search" placeholder="Search" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
