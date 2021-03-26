@@ -38,7 +38,7 @@ class MY_Model extends CI_Model{
         return $this->db->insert_id();
     }
 
-    public function update($data = [], $where){
+    public function update($data , $where){
         if(is_numeric($where)) $where = ['id' => $where];
         return $this->db->where($where)->update($this->table, $data);
     }

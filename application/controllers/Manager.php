@@ -56,7 +56,7 @@ class Manager extends CI_Controller {
 
         $this->load->model('User_model' , 'model');
 
-        $user = $this->model->get($id);
+        $user = $this->model->row($id);
         if(!is_object($user)){
             show_404();
 

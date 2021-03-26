@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="row">
         <div class="col-md-8">
             <h4 class="mb-3">Billing address</h4>
-            <?=form_open()?>
+            <?=form_open(base_url('checkout'))?>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="firstname">First name</label>
